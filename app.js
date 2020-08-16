@@ -9,7 +9,9 @@ const fs = require("fs");
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-// const render = require("./lib/htmlRenderer");
+const render = require("./lib/hmtlRenderer");
+
+let employees = []
 
 const managerCreate = (data) => {
   inquirer
@@ -22,12 +24,48 @@ const managerCreate = (data) => {
     ])
     .then(res => {
       let manager = new Manager(data.name, data.id, data.email, res.officeNum)
-      console.log(manager)
+      employees.push(manager)
+      finish()
     })
     .catch(err => {console.log(err)})
 }
 
-function start() {  
+const engineerCreate = (data) => {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'gitHub',
+        message: "What is the engineers' gitHub username?"
+      }
+    ])
+    .then(res => {
+      let engineer = new Engineer(data.name, data.id, data.email, res.gitHub)
+      employees.push(engineer)
+      finish()
+    })
+    .catch(err => { console.log(err) })
+}
+
+const internCreate = (data) => {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'school',
+        message: "What is the intern's school?"
+      }
+    ])
+    .then(res => {
+      let intern = new Intern(data.name, data.id, data.email, res.school)
+      employees.push(intern)
+      finish()
+    })
+    .catch(err => { console.log(err) })
+}
+
+function start() { 
+  console.log(employees) 
 inquirer
   .prompt([
     {
@@ -70,7 +108,29 @@ inquirer
   })
   .catch(err => console.log(err))
 }
+
+function finish() {
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'newItem',
+        message: 'Would you like to add another member?',
+        choices: ['Yes', 'No']
+      }
+    ])
+    .then(res => {
+      if (res.newItem === 'Yes') {
+        start()
+      } else {
+        let html = render(employees)
+        fs.writeFileSync(path.join(__dirname, 'output', 'index.html'), html)
+      }
+    })
+    .catch(err => console.log(err))
+}
 start()
+
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
